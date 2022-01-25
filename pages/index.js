@@ -35,9 +35,24 @@ function Titulo(props){
 export default function PaginaInicial() {
     const [username, setUsername] = React.useState('leandrowatanabe');
     const [userImage, setUserImage] = React.useState(`https://github.com/${username}.png`);
+    const [followers, setFollowers] = React.useState(`https://api.github.com/users/${username}/followers`)
+    const [repos, setRepos] = React.useState(`https://api.github.com/users/${username}/repos`)
     const roteamento = useRouter()
-    //const result = fetch(`https://api.github.com/users/${username}`).then((response)=>response.json()).catch( error => console.error(error));
-    //console.log(result)
+    
+    React.useEffect(()=>{
+      fetch(`https://api.github.com/users/${username}/followers`)
+      .then((response)=>response.json())
+      .then(data=>setFollowers(data.length))
+    },[username])
+
+    React.useEffect(()=>{
+      fetch(`https://api.github.com/users/${username}/repos`)
+      .then((response)=>response.json())
+      .then(data=>setRepos(data.length))
+    },[username])
+
+    console.log(followers, repos)
+
     return (
       <>
         <Box
@@ -158,6 +173,31 @@ export default function PaginaInicial() {
                 }}
               >
                 {username}
+ 
+              </Text>
+              <Text
+                variant="body4"
+                styleSheet={{
+                  color: appConfig.theme.colors.neutrals[200],
+                  backgroundColor: appConfig.theme.colors.neutrals[900],
+                  padding: '3px 10px',
+                  borderRadius: '1000px'
+                }}
+              >
+                Repos:
+                {repos}
+              </Text>
+              <Text
+                variant="body4"
+                styleSheet={{
+                  color: appConfig.theme.colors.neutrals[200],
+                  backgroundColor: appConfig.theme.colors.neutrals[900],
+                  padding: '3px 10px',
+                  borderRadius: '1000px'
+                }}
+              >
+                Followers:
+                {followers}
               </Text>
             </Box>
             {/* Photo Area */}
