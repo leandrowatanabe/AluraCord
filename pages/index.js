@@ -1,34 +1,7 @@
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 import appConfig from '../config.json'
-
-function GlobalStyle() {
-    return (
-      <style global jsx>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          list-style: none;
-        }
-        body {
-          font-family: 'Open Sans', sans-serif;
-        }
-        /* App fit Height */ 
-        html, body, #__next {
-          min-height: 100vh;
-          display: flex;
-          flex: 1;
-        }
-        #__next {
-          flex: 1;
-        }
-        #__next > * {
-          flex: 1;
-        }
-        /* ./App fit Height */ 
-      `}</style>
-    );
-  }
+import React from 'react';
+import { useRouter } from 'next/router';
 
 function Titulo(props){
     const Tag = props.tag || 'h1';
@@ -60,11 +33,13 @@ function Titulo(props){
 //export default HomePage
 
 export default function PaginaInicial() {
-    const username = 'leandrowatanabe';
-  
+    const [username, setUsername] = React.useState('leandrowatanabe');
+    const [userImage, setUserImage] = React.useState(`https://github.com/${username}.png`);
+    const roteamento = useRouter()
+    //const result = fetch(`https://api.github.com/users/${username}`).then((response)=>response.json()).catch( error => console.error(error));
+    //console.log(result)
     return (
       <>
-        <GlobalStyle />
         <Box
           styleSheet={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -91,6 +66,11 @@ export default function PaginaInicial() {
             {/* Formulário */}
             <Box
               as="form"
+              onSubmit={function(infosDoEvento){
+                infosDoEvento.preventDefault();
+                console.log('alguem submeteu o form')
+                roteamento.push('/chat')
+              }}
               styleSheet={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -101,7 +81,24 @@ export default function PaginaInicial() {
                 {appConfig.name}
               </Text>
   
+              {/* <input
+                  type="text"
+                  value={`${username}`}
+                  onChange={function (event){
+                    setUsername(event.target.value)
+                  }}
+              /> */}
               <TextField
+                value={`${username}`}
+                onChange={function (event){
+                  const value = event.target.value
+                  setUsername(value)
+                  if(value.length > 2){
+                    setUserImage(`https://github.com/${value}.png`)
+                  }else{
+                    setUserImage('https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png')
+                  }
+                }}
                 fullWidth
                 textFieldColors={{
                   neutral: {
@@ -115,6 +112,7 @@ export default function PaginaInicial() {
               <Button
                 type='submit'
                 label='Entrar'
+                disabled={username.length < 3}
                 fullWidth
                 buttonColors={{
                   contrastColor: appConfig.theme.colors.neutrals["000"],
@@ -148,7 +146,7 @@ export default function PaginaInicial() {
                   borderRadius: '50%',
                   marginBottom: '16px',
                 }}
-                src={`https://github.com/${username}.png`}
+                src={userImage}
               />
               <Text
                 variant="body4"
