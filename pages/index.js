@@ -43,15 +43,14 @@ export default function PaginaInicial() {
       fetch(`https://api.github.com/users/${username}/followers`)
       .then((response)=>response.json())
       .then(data=>setFollowers(data.length))
-    },[username])
+    })
 
     React.useEffect(()=>{
       fetch(`https://api.github.com/users/${username}/repos`)
       .then((response)=>response.json())
       .then(data=>setRepos(data.length))
-    },[username])
+    })
 
-    console.log(followers, repos)
 
     return (
       <>
@@ -84,6 +83,7 @@ export default function PaginaInicial() {
               onSubmit={function(infosDoEvento){
                 infosDoEvento.preventDefault();
                 console.log('alguem submeteu o form')
+                localStorage.setItem('username',JSON.stringify(username))
                 roteamento.push('/chat')
               }}
               styleSheet={{
@@ -108,6 +108,7 @@ export default function PaginaInicial() {
                 onChange={function (event){
                   const value = event.target.value
                   setUsername(value)
+
                   if(value.length > 2){
                     setUserImage(`https://github.com/${value}.png`)
                   }else{
@@ -127,7 +128,7 @@ export default function PaginaInicial() {
               <Button
                 type='submit'
                 label='Entrar'
-                disabled={username.length < 3}
+                disabled={!username}
                 fullWidth
                 buttonColors={{
                   contrastColor: appConfig.theme.colors.neutrals["000"],
@@ -172,7 +173,7 @@ export default function PaginaInicial() {
                   borderRadius: '1000px'
                 }}
               >
-                {username}
+                {username?username:" "}
  
               </Text>
               <Text
@@ -184,8 +185,7 @@ export default function PaginaInicial() {
                   borderRadius: '1000px'
                 }}
               >
-                Repos:
-                {repos}
+                {repos? "Repos: " + repos: " "}
               </Text>
               <Text
                 variant="body4"
@@ -196,8 +196,7 @@ export default function PaginaInicial() {
                   borderRadius: '1000px'
                 }}
               >
-                Followers:
-                {followers}
+                {followers? "Followers: " + followers : " "}
               </Text>
             </Box>
             {/* Photo Area */}
