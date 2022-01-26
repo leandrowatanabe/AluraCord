@@ -7,7 +7,7 @@ export default function ChatPage() {
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
-    const username = JSON.parse(localStorage.getItem('username'))
+    const username = React.useEffect(()=>{JSON.parse(localStorage.getItem('username'))})
     
     /*
     // Usuário

@@ -51,6 +51,7 @@ export default function PaginaInicial() {
       .then(data=>setRepos(data.length))
     })
 
+    React.useEffect(()=>{localStorage.setItem('username',JSON.stringify(username))})
 
     return (
       <>
@@ -83,7 +84,6 @@ export default function PaginaInicial() {
               onSubmit={function(infosDoEvento){
                 infosDoEvento.preventDefault();
                 console.log('alguem submeteu o form')
-                localStorage.setItem('username',JSON.stringify(username))
                 roteamento.push('/chat')
               }}
               styleSheet={{
