@@ -74,7 +74,7 @@ export default function ChatPage() {
                         padding: '16px',
                     }}
                 >
-                    <MessageList mensagens={listaDeMensagens} username={username} />
+                    <MessageList mensagens={listaDeMensagens} username={username} setListaDeMensagens={setListaDeMensagens} />
                     {/* {listaDeMensagens.map((mensagemAtual) => {
                         return (
                             <li key={mensagemAtual.id}>
@@ -90,9 +90,8 @@ export default function ChatPage() {
                         as="form"
                         styleSheet={{
                             display: 'flex',
-                            alignItems: 'center',
+                            alignItems: 'start',
                             flexDirection: 'collumn',
-                            justifyContent: 'center'
                         }}
                     >
                         <TextField
@@ -111,6 +110,7 @@ export default function ChatPage() {
                             type="textarea"
                             styleSheet={{
                                 width: '100%',
+                                height: '100%',
                                 border: '0',
                                 resize: 'none',
                                 borderRadius: '5px',
@@ -120,14 +120,17 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
                         />
+                        
                         <Button
                             type='submit'
                             label='Enviar'
                             styleSheet={{
+                                height: '85%',
+                                width: 'auto',
+                                border: '0',
                                 resize: 'none',
                                 borderRadius: '5px',
-                                padding: '6px 6px',
-                                margin: '2px 0 2px 0',
+                                padding: '6px 8px',
                             }}
                             buttonColors={{
                             contrastColor: appConfig.theme.colors.neutrals["000"],
@@ -135,6 +138,7 @@ export default function ChatPage() {
                             mainColorLight: appConfig.theme.colors.neutrals[400],
                             mainColorStrong: appConfig.theme.colors.neutrals[600],
                             }}
+                            
                         />
                     </Box>
 
@@ -163,13 +167,19 @@ function Header() {
 }
 
 
-// function handleApagar(props, id){
-//     console.log(id)
-//     const lista = props.mensagens.map((mensagem)=>{if(mensagem.id != id) return mensagem})
-//     setListaDeMensagens(lista)
-// }
+
     
 function MessageList(props) {
+
+    function handleApagar(id){
+        console.log(id)
+        const lista = props.mensagens.filter((mensagem)=>{if(mensagem.id != id) return mensagem})
+        
+        props.setListaDeMensagens([
+            ...lista
+        ])
+    }
+
     return (
         <Box
             tag="ul"
@@ -185,12 +195,22 @@ function MessageList(props) {
         >
             {props.mensagens.map((mensagem) => {
                 return (
-                    <Text
+                    <Box
+                        styleSheet={{
+                            overflow: 'scroll',
+                            display: 'flex',
+                            color: appConfig.theme.colors.neutrals["000"],
+                            marginBottom: '16px',
+                            overflow: 'auto',
+                        }}
+                    >
+                         <Text
                         key={mensagem.id}
                         tag="li"
                         styleSheet={{
                             borderRadius: '5px',
                             padding: '6px',
+                            flex: 2,
                             marginBottom: '12px',
                             hover: {
                                 backgroundColor: appConfig.theme.colors.neutrals[700],
@@ -224,33 +244,42 @@ function MessageList(props) {
                                 tag="span"
                             >
                                 {(new Date().toLocaleDateString())}
-                            {/* <Button
+                            </Text>
+
+                        </Box>
+                        {mensagem.texto}
+                        
+                    </Text>
+                    <Button
                                 type='button'
                                 label='x'
                                 onClick={()=>{
-                                    handleApagar(props,mensagem.id);
+                                    handleApagar(mensagem.id);
                                 }}
                                 styleSheet={{
-                                    position: 'right',
+                                    
                                     color: 'red',
                                     resize: 'none',
                                     borderRadius: '5px',
-                                    padding: '2px 2px',
-                                    margin: '2px 0 2px 0',
+                                    padding: '2px 2px', 
+                                    marginBottom: '12px',
+                                    backgroundColor: appConfig.theme.colors.neutrals[600],
                                 }}
                                 buttonColors={{
-                                contrastColor: appConfig.theme.colors.neutrals["000"],
-                                mainColor: appConfig.theme.colors.neutrals[500],
-                                mainColorLight: appConfig.theme.colors.neutrals[400],
-                                mainColorStrong: appConfig.theme.colors.neutrals[600],
-                                }}
-                            /> */}
-                            </Text>
-                        </Box>
-                        {mensagem.texto}
-                    </Text>
+                                    contrastColor: appConfig.theme.colors.neutrals["000"],
+                                    mainColor: appConfig.theme.colors.neutrals[500],
+                                    mainColorLight: appConfig.theme.colors.neutrals[400],
+                                    mainColorStrong: appConfig.theme.colors.neutrals[600],
+                                    }}
+                            />
+                    </Box>
+                   
+                    
                 );
             })}
+
         </Box>
+        
+        
     )
 }

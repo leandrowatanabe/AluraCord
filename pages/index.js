@@ -35,20 +35,20 @@ function Titulo(props){
 export default function PaginaInicial() {
     const [username, setUsername] = React.useState('leandrowatanabe');
     const [userImage, setUserImage] = React.useState(`https://github.com/${username}.png`);
-    const [followers, setFollowers] = React.useState(`https://api.github.com/users/${username}/followers`)
-    const [repos, setRepos] = React.useState(`https://api.github.com/users/${username}/repos`)
+    const [followers, setFollowers] = React.useState('')
+    const [repos, setRepos] = React.useState('')
     const roteamento = useRouter()
     
     React.useEffect(()=>{
-      fetch(`https://api.github.com/users/${username}/followers`)
+      fetch(`https://api.github.com/users/${username}`)
       .then((response)=>response.json())
-      .then(data=>setFollowers(data.length))
+      .then(data=>setFollowers(data.followers))
     })
 
     React.useEffect(()=>{
-      fetch(`https://api.github.com/users/${username}/repos`)
+      fetch(`https://api.github.com/users/${username}`)
       .then((response)=>response.json())
-      .then(data=>setRepos(data.length))
+      .then(data=>setRepos(data.public_repos))
     })
 
     React.useEffect(()=>{localStorage.setItem('username',JSON.stringify(username))})
