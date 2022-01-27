@@ -85,8 +85,7 @@ export default function ChatPage() {
                     height: '100%',
                     maxWidth: '95%',
                     maxHeight: '95vh',
-                    padding: '32px',
-                    
+                    padding: '32px'
                 }}
             >
                 <Header />
@@ -99,7 +98,7 @@ export default function ChatPage() {
                         backgroundColor: appConfig.theme.colors.neutrals[600],
                         flexDirection: 'column',
                         borderRadius: '5px',
-                        padding: '16px',
+                        padding: '16px'
                     }}
                 >
                     <MessageList mensagens={listaDeMensagens} username={username} setListaDeMensagens={setListaDeMensagens} />
@@ -119,7 +118,7 @@ export default function ChatPage() {
                         styleSheet={{
                             display: 'flex',
                             alignItems: 'start',
-                            flexDirection: 'collumn',
+                            flexDirection: 'collumn'
                         }}
                     >
                         <TextField
@@ -216,33 +215,37 @@ function MessageList(props) {
     }
 
     return (
+        
         <Box
             tag="ul"
             styleSheet={{
-                overflow: 'scroll',
+                overflowY: 'auto',
                 display: 'flex',
                 flexDirection: 'column-reverse',
                 flex: 1,
                 color: appConfig.theme.colors.neutrals["000"],
                 marginBottom: '16px',
-                overflow: 'auto',
+                //scrollBehavior: 'smooth',
             }}
         >
-            {props.mensagens.map((mensagem) => {
+                {props.mensagens.map((mensagem) => {
                 return (
                     <Box
                         styleSheet={{
-                            overflow: 'scroll',
                             display: 'flex',
                             color: appConfig.theme.colors.neutrals["000"],
                             marginBottom: '16px',
-                            overflow: 'auto',
+                            width: '100%',
+                            resize: 'none',
+
                         }}
                     >
-                         <Text
+                        <Text
                         key={mensagem.id}
                         tag="li"
                         styleSheet={{
+                            width: '100%',
+                            resize: 'none',
                             borderRadius: '5px',
                             padding: '6px',
                             flex: 2,
@@ -251,7 +254,7 @@ function MessageList(props) {
                                 backgroundColor: appConfig.theme.colors.neutrals[700],
                             }
                         }}
-                    >
+                        >
                         <Box
                             styleSheet={{
                                 marginBottom: '8px',
@@ -280,42 +283,34 @@ function MessageList(props) {
                             >
                                 {(new Date().toLocaleDateString())}
                             </Text>
-
                         </Box>
                         {mensagem.texto}
-                        
-                    </Text>
-                    <Button
-                                type='button'
-                                label='x'
-                                disabled={mensagem.de != props.username}
-                                onClick={()=>{
-                                    handleApagar(mensagem.id);
-                                }}
-                                styleSheet={{
-                                    
-                                    color: 'red',
-                                    resize: 'none',
-                                    borderRadius: '5px',
-                                    padding: '2px 2px', 
-                                    marginBottom: '12px',
-                                    backgroundColor: appConfig.theme.colors.neutrals[600],
-                                }}
-                                buttonColors={{
-                                    contrastColor: appConfig.theme.colors.neutrals["000"],
-                                    mainColor: appConfig.theme.colors.neutrals[500],
-                                    mainColorLight: appConfig.theme.colors.neutrals[400],
-                                    mainColorStrong: appConfig.theme.colors.neutrals[600],
-                                    }}
-                            />
-                    </Box>
-                   
-                    
+                        </Text>
+                        <Button
+                            type='button'
+                            label='x'
+                            disabled={mensagem.de != props.username}
+                            onClick={()=>{
+                                handleApagar(mensagem.id);
+                            }}
+                            styleSheet={{
+                                color: 'red',
+                                resize: 'none',
+                                borderRadius: '5px',
+                                padding: '2px 2px', 
+                                marginBottom: '12px',
+                                backgroundColor: appConfig.theme.colors.neutrals[600],
+                            }}
+                            buttonColors={{
+                                contrastColor: appConfig.theme.colors.neutrals["000"],
+                                mainColor: appConfig.theme.colors.neutrals[500],
+                                mainColorLight: appConfig.theme.colors.neutrals[400],
+                                mainColorStrong: appConfig.theme.colors.neutrals[600],
+                            }}
+                        />
+                    </Box>             
                 );
             })}
-
         </Box>
-        
-        
     )
 }
