@@ -43,13 +43,13 @@ export default function PaginaInicial() {
       fetch(`https://api.github.com/users/${username}`)
       .then((response)=>response.json())
       .then(data=>setFollowers(data.followers))
-    })
+    },[username])
 
     React.useEffect(()=>{
       fetch(`https://api.github.com/users/${username}`)
       .then((response)=>response.json())
       .then(data=>setRepos(data.public_repos))
-    })
+    },[username])
 
     React.useEffect(()=>{localStorage.setItem('username',JSON.stringify(username))})
 

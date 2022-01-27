@@ -1,6 +1,17 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js'
+
+// const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI4NTc2NCwiZXhwIjoxOTU4ODYxNzY0fQ.pb6MJQfG6pOkHxDR536Ah1LqXer1h6BX9w2ilSxvBDA';
+// const SUPABASE_URL = 'https://sxvgziqrzzsifzysrmjn.supabase.co'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+const supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+
+
 
 export default function ChatPage() {
 
@@ -8,7 +19,18 @@ export default function ChatPage() {
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
     const [username, setUsername] = React.useState('')
 
-    React.useEffect(()=>{setUsername(JSON.parse(localStorage.getItem('username')))})
+    React.useEffect(()=>{
+        supabaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({data})=>{
+                console.log('Dados da consulta: ', data)
+                setListaDeMensagens(data)
+            })
+    },[])
+
+    React.useEffect(()=>{setUsername(JSON.parse(localStorage.getItem('username')))},[username])
     
     /*
     // Usuário
@@ -23,15 +45,24 @@ export default function ChatPage() {
     */
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            id: listaDeMensagens.length + 1,
+            //id: listaDeMensagens.length + 1,
             de: username,
             texto: novaMensagem,
         };
         if(novaMensagem){
-            setListaDeMensagens([
-                mensagem,
-                ...listaDeMensagens,
-            ]);
+            supabaseClient
+                .from('mensagens')
+                .insert([
+                    mensagem
+                ])
+                .then(({data})=>{
+                    //console.log('Criando a mensagem: ', resposta)
+                    setListaDeMensagens([
+                        data[0],
+                        ...listaDeMensagens,
+                    ]);
+                })
+
             setMensagem('');
         }
     }
@@ -178,6 +209,13 @@ function MessageList(props) {
         props.setListaDeMensagens([
             ...lista
         ])
+
+        const {data} = supabaseClient
+            .from('mensagens')
+            .delete()
+            .match({id})
+            .then({data})
+
     }
 
     return (
@@ -230,7 +268,7 @@ function MessageList(props) {
                                     display: 'inline-block',
                                     marginRight: '8px',
                                 }}
-                                src={`https://github.com/${props.username}.png`}
+                                src={`https://github.com/${mensagem.de}.png`}
                             />
                             <Text tag="strong">
                                 {mensagem.de}
@@ -253,6 +291,7 @@ function MessageList(props) {
                     <Button
                                 type='button'
                                 label='x'
+                                disabled={mensagem.de != props.username}
                                 onClick={()=>{
                                     handleApagar(mensagem.id);
                                 }}
