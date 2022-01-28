@@ -1,20 +1,33 @@
-import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
-import appConfig from '../config.json';
+import { useRouter } from 'next/router';
+
+import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import { createClient } from '@supabase/supabase-js'
+
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker'
+import appConfig from '../config.json';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
 const supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
 
+function escutaMensagem(resposta){
 
+    return supabaseClient
+        .from('mensagens')
+        .on('*',( respostaLive ) => { 
+            resposta(respostaLive)
+         })
+        .subscribe()
+        
+}
 
 export default function ChatPage() {
+    const roteamento = useRouter()
 
+    const username = roteamento.query.username;
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-    const [username, setUsername] = React.useState('')
 
     React.useEffect(()=>{
         supabaseClient
@@ -25,21 +38,31 @@ export default function ChatPage() {
                 console.log('Dados da consulta: ', data)
                 setListaDeMensagens(data)
             })
+
+        escutaMensagem((resposta)=>{
+            if(resposta.eventType=='INSERT'){
+                setListaDeMensagens((valorAtualDaLista)=>{
+                    return[
+                        resposta.new,
+                        ...valorAtualDaLista,
+                        ]
+                    }
+                );
+            }
+            if(resposta.eventType=='DELETE'){
+                setListaDeMensagens((valorAtualDaLista)=>{
+                    const lista = valorAtualDaLista.filter((mensagem)=>{if(mensagem.id != resposta.old.id) return mensagem})
+                    return[
+                        ...lista,
+                        ]
+                    }
+                );
+            }
+        }
+        );
+
     },[])
 
-    React.useEffect(()=>{setUsername(JSON.parse(localStorage.getItem('username')))},[username])
-    
-    /*
-    // Usuário
-    - Usuário digita no campo textarea
-    - Aperta enter para enviar
-    - Tem que adicionar o texto na listagem
-    
-    // Dev
-    - [X] Campo criado
-    - [X] Vamos usar o onChange usa o useState (ter if pra caso seja enter pra limpar a variavel)
-    - [X] Lista de mensagens 
-    */
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
             //id: listaDeMensagens.length + 1,
@@ -54,10 +77,10 @@ export default function ChatPage() {
                 ])
                 .then(({data})=>{
                     //console.log('Criando a mensagem: ', resposta)
-                    setListaDeMensagens([
-                        data[0],
-                        ...listaDeMensagens,
-                    ]);
+                    // setListaDeMensagens([
+                    //     data[0],
+                    //     ...listaDeMensagens,
+                    // ]);
                 })
 
             setMensagem('');
@@ -102,13 +125,7 @@ export default function ChatPage() {
                     }}
                 >
                     <MessageList mensagens={listaDeMensagens} username={username} setListaDeMensagens={setListaDeMensagens} />
-                    {/* {listaDeMensagens.map((mensagemAtual) => {
-                        return (
-                            <li key={mensagemAtual.id}>
-                                {mensagemAtual.de}: {mensagemAtual.texto}
-                            </li>
-                        )
-                    })} */}
+
                     <Box
                         onSubmit={function(infosDoEvento){
                             infosDoEvento.preventDefault();
@@ -147,7 +164,11 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
                         />
-                        
+                        <ButtonSendSticker 
+                            onStickerClick={(sticker)=>{
+                                handleNovaMensagem(':sticker:' + sticker)
+                            }}
+                        />
                         <Button
                             type='submit'
                             label='Enviar'
@@ -199,12 +220,6 @@ function Header() {
 function MessageList(props) {
 
     function handleApagar(id){
-        console.log(id)
-        const lista = props.mensagens.filter((mensagem)=>{if(mensagem.id != id) return mensagem})
-        
-        props.setListaDeMensagens([
-            ...lista
-        ])
 
         const {data} = supabaseClient
             .from('mensagens')
@@ -212,6 +227,10 @@ function MessageList(props) {
             .match({id})
             .then({data})
 
+    }
+
+    function handleEditar(id, texto){
+        console.log(id, texto)
     }
 
     return (
@@ -284,17 +303,21 @@ function MessageList(props) {
                                 {(new Date().toLocaleDateString())}
                             </Text>
                         </Box>
-                        {mensagem.texto}
+                        {mensagem.texto.startsWith(':sticker:')
+                            ?(<Image src={mensagem.texto.replace(':sticker:','')} />)
+                            : mensagem.texto
+                        }
                         </Text>
-                        <Button
+                        {/* <Button
                             type='button'
-                            label='x'
+                            label='e'
                             disabled={mensagem.de != props.username}
                             onClick={()=>{
-                                handleApagar(mensagem.id);
+                                handleEditar(mensagem.id, mensagem.texto);
                             }}
                             styleSheet={{
-                                color: 'red',
+                                color: 'white',
+                                width: '30px',
                                 resize: 'none',
                                 borderRadius: '5px',
                                 padding: '2px 2px', 
@@ -307,6 +330,31 @@ function MessageList(props) {
                                 mainColorLight: appConfig.theme.colors.neutrals[400],
                                 mainColorStrong: appConfig.theme.colors.neutrals[600],
                             }}
+                            
+                        /> */}
+                        <Button
+                            type='button'
+                            label='x'
+                            disabled={mensagem.de != props.username}
+                            onClick={()=>{
+                                handleApagar(mensagem.id);
+                            }}
+                            styleSheet={{
+                                color: 'red',
+                                width: '30px',
+                                resize: 'none',
+                                borderRadius: '5px',
+                                padding: '2px 2px', 
+                                marginBottom: '12px',
+                                backgroundColor: appConfig.theme.colors.neutrals[600],
+                            }}
+                            buttonColors={{
+                                contrastColor: appConfig.theme.colors.neutrals["000"],
+                                mainColor: appConfig.theme.colors.neutrals[500],
+                                mainColorLight: appConfig.theme.colors.neutrals[400],
+                                mainColorStrong: appConfig.theme.colors.neutrals[600],
+                            }}
+                            
                         />
                     </Box>             
                 );
